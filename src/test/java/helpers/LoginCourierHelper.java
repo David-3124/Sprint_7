@@ -24,4 +24,13 @@ public class LoginCourierHelper {
         }
         return null;
     }
+
+    @Step("Запрос на авторизацию курьера")
+    public Response loginRequest(CourierLogin loginData) {
+        return given()
+                .header("Content-type", "application/json")
+                .body(loginData)
+                .when()
+                .post(ConfigHelper.COURIER_LOGIN_ENDPOINT);
+    }
 }

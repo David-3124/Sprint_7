@@ -1,9 +1,9 @@
-import helpers.ConfigHelper;
+import helpers.BaseUrl;
+import helpers.CreateOrderHelper;
 import io.qameta.allure.Step;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import utils.CreateOrder;
@@ -12,17 +12,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static helpers.CreateOrderHelper.cancelOrder;
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class CreateOrderTest {
+public class CreateOrderTest extends BaseUrl {
     private Integer createdOrder = null;
-
-    @BeforeEach
-    @Step("Получение URL")
-    public void loginUrl() {
-        RestAssured.baseURI = ConfigHelper.PAGE_URL;
-    }
 
     static Stream<CreateOrder> orderProvider() {
         return Stream.of(
@@ -43,19 +36,13 @@ public class CreateOrderTest {
 
     @ParameterizedTest
     @MethodSource("orderProvider")
-    @Step("Проверка, что при создании заказа можно передвать разные цвета")
+    @DisplayName("Проверка, что при создании заказа можно передавать разные цвета")
     public void createOrderWithColors(CreateOrder order) {
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .body(order)
-                .when()
-                .post(ConfigHelper.CREATE_ORDER_ENDPOINT)
-                .then()
+        Response response = new CreateOrderHelper().createOrder(order);
+        response.then()
                 .statusCode(201)
-                .body("track", notNullValue())
-                .extract().response();
-
+                .body("track", notNullValue());
         createdOrder = response.jsonPath().getInt("track");
     }
 

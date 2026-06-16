@@ -1,33 +1,21 @@
-import helpers.ConfigHelper;
-import io.qameta.allure.Step;
-import io.restassured.RestAssured;
+import helpers.BaseUrl;
+import helpers.ListOrderHelper;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThan;
 
-public class ListOrderTest {
-
-    @BeforeEach
-    @Step("Получение URL")
-    public void loginUrl() {
-        RestAssured.baseURI = ConfigHelper.PAGE_URL;
-    }
+public class ListOrderTest extends BaseUrl {
 
     @Test
-    @Step("Проверка, что в тело ответа возвращается список заказов")
+    @DisplayName("Проверка, что в тело ответа возвращается список заказов")
     public void getListOrder() {
-        Response response = given()
-                .header("Content-type", "application/json")
-                .when()
-                .get(ConfigHelper.LIST_ORDERS_ENDPOINT)
-                .then()
-                .statusCode(200)
-                .body("orders", notNullValue())
-                .extract().response();
 
+        Response response = new ListOrderHelper().getOrders();
+        response.then()
+                .statusCode(200)
+                .body("orders.size()", greaterThan(0));
         System.out.println(response.asPrettyString());
     }
 }
